@@ -58,7 +58,7 @@ const SERVICES = [
     price: 3000,
     duration: 40,
     category: "MASSAGE",
-    img: `${import.meta.env.BASE_URL}images/massage.jpg`
+    img: `${import.meta.env.BASE_URL}images/massage..jpg`
   },
   {
     id: 4,
