@@ -415,7 +415,7 @@ export default function App() {
           <div className="lg:col-span-7 relative group">
             <div className="absolute -inset-10 border border-gray-100 -z-10 translate-x-10 translate-y-10 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-1000"></div>
             <img
-              src="/images/about.jpg"
+              src={`${import.meta.env.BASE_URL}images/about.jpg`}
               className="w-full grayscale hover:grayscale-0 transition-all duration-1000 shadow-2xl rounded-sm"
               alt="Art of Grooming"
             />
