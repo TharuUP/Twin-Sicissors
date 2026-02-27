@@ -313,7 +313,37 @@ const BookingModal = ({ isOpen, onClose }) => {
                     </p>
                   </div>
                   <button
-                    onClick={() => setStep(5)}
+                    onClick={async () => {
+                      try {
+                        const response = await fetch("https://formspree.io/f/xlgwvrvk", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                          },
+                          body: JSON.stringify({
+                            service: bookingData.service?.name,
+                            price: bookingData.service?.price,
+                            date: bookingData.date,
+                            time: bookingData.slot,
+                            name: bookingData.name,
+                            phone: bookingData.phone,
+                            email: bookingData.email
+                          })
+                        });
+
+                        if (!response.ok) {
+                          alert("Payment successful but email failed.");
+                          return;
+                        }
+
+                        setStep(5); // Only go to success after email sent
+
+                      } catch (error) {
+                        alert("Something went wrong.");
+                        console.error(error);
+                      }
+                    }}
                     className="w-full bg-red-600 text-white flex items-center justify-center gap-3 p-5 text-[11px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all"
                   >
                     <CreditCard size={18} />
