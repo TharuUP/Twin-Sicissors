@@ -334,13 +334,14 @@ const BookingModal = ({ isOpen, onClose }) => {
                           }
                         );
 
-                        if (!response.ok) {
-                          alert("Payment successful but email failed.");
+                        const result = await response.json();
+
+                        if (result.error) {
+                          alert(result.error);
                           return;
                         }
 
-                        setStep(5); // Only go to success after email sent
-
+                        setStep(5);
                       } catch (error) {
                         alert("Something went wrong.");
                         console.error(error);
