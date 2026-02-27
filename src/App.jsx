@@ -315,22 +315,24 @@ const BookingModal = ({ isOpen, onClose }) => {
                   <button
                     onClick={async () => {
                       try {
-                        const response = await fetch("https://formspree.io/f/xlgwvrvk", {
-                          method: "POST",
-                          headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json"
-                          },
-                          body: JSON.stringify({
-                            service: bookingData.service?.name,
-                            price: bookingData.service?.price,
-                            date: bookingData.date,
-                            time: bookingData.slot,
-                            name: bookingData.name,
-                            phone: bookingData.phone,
-                            email: bookingData.email
-                          })
-                        });
+                        const response = await fetch(
+                          "https://twinscissors.pythonanywhere.com/book",
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                              service: bookingData.service?.name,
+                              price: bookingData.service?.price,
+                              date: bookingData.date,
+                              time: bookingData.slot,
+                              name: bookingData.name,
+                              phone: bookingData.phone,
+                              email: bookingData.email
+                            })
+                          }
+                        );
 
                         if (!response.ok) {
                           alert("Payment successful but email failed.");
