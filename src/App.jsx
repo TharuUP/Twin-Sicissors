@@ -36,10 +36,38 @@ const SUPPORT_EMAIL = "twinscissors.saloon@gmail.com";
 const ADDRESS = "Baseline Rd, Orugodawatta, Colombo 01400, Sri Lanka";
 
 const SERVICES = [
-  { id: 1, name: "Signature Haircut", price: 2500, duration: 45, category: "CUTTING", img: "/images/haircut.jpg" },
-  { id: 2, name: "Beard Sculpting", price: 1500, duration: 30, category: "SHAVING", img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=800" },
-  { id: 3, name: "Luxury Therapy", price: 3000, duration: 40, category: "MASSAGE", img: "/images/massage..jpg" },
-  { id: 4, name: "Groom's Ritual", price: 12000, duration: 150, category: "PACKAGE", img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=800" },
+  {
+    id: 1,
+    name: "Signature Haircut",
+    price: 2500,
+    duration: 45,
+    category: "CUTTING",
+    img: `${import.meta.env.BASE_URL}images/haircut.jpg`
+  },
+  {
+    id: 2,
+    name: "Beard Sculpting",
+    price: 1500,
+    duration: 30,
+    category: "SHAVING",
+    img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 3,
+    name: "Luxury Therapy",
+    price: 3000,
+    duration: 40,
+    category: "MASSAGE",
+    img: `${import.meta.env.BASE_URL}images/massage.jpg`
+  },
+  {
+    id: 4,
+    name: "Groom's Ritual",
+    price: 12000,
+    duration: 150,
+    category: "PACKAGE",
+    img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=800"
+  },
 ];
 
 const TESTIMONIALS = [
