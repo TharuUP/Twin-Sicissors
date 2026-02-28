@@ -38,36 +38,141 @@ const ADDRESS = "Baseline Rd, Orugodawatta, Colombo 01400, Sri Lanka";
 const SERVICES = [
   {
     id: 1,
-    name: "Signature Haircut",
+    name: "Royal Signature Haircut",
     price: 800,
     duration: 45,
     category: "CUTTING",
-    img: `${import.meta.env.BASE_URL}images/haircut.jpg`
-  },
-  {
-    id: 2,
-    name: "Beard Sculpting",
-    price: 800,
-    duration: 30,
-    category: "SHAVING",
     img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=800"
   },
   {
+    id: 2,
+    name: "Prestige School Cut",
+    price: 500,
+    duration: 30,
+    category: "CUTTING",
+    img: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&q=80&w=800"
+  },
+  {
     id: 3,
-    name: "Luxury Massage",
-    price: 800,
-    duration: 40,
-    category: "MASSAGE",
-    img: `${import.meta.env.BASE_URL}images/massage..jpg`
+    name: "Little Prince Kids Cut",
+    price: 500,
+    duration: 30,
+    category: "CUTTING",
+    img: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&q=80&w=800"
   },
   {
     id: 4,
-    name: "Groom's Ritual",
-    price: 1000,
-    duration: 150,
-    category: "PACKAGE",
+    name: "Gentleman Classic Shave",
+    price: 500,
+    duration: 25,
+    category: "SHAVING",
     img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=800"
   },
+  {
+    id: 5,
+    name: "Executive Beard Sculpt",
+    price: 800,
+    duration: 30,
+    category: "SHAVING",
+    img: "https://images.unsplash.com/photo-1590540179859-7b8c3c8c1d57?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 6,
+    name: "Relaxation Therapy Massage",
+    price: 800,
+    duration: 40,
+    category: "MASSAGE",
+    img: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 7,
+    name: "Royal Oil & Tonic Ritual",
+    price: 1000,
+    duration: 45,
+    category: "THERAPY",
+    img: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 8,
+    name: "Diamond Glow Facial",
+    price: 2500,
+    duration: 60,
+    category: "FACIAL",
+    img: "https://images.unsplash.com/photo-1596178060810-72d5c6c6f6f1?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 9,
+    name: "Premium Skin Cleanse",
+    price: 1000,
+    duration: 45,
+    category: "FACIAL",
+    img: "https://images.unsplash.com/photo-1600334129128-685c5582fd35?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 10,
+    name: "Elite Color Transformation",
+    price: 1500,
+    duration: 90,
+    category: "COLOR",
+    img: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 11,
+    name: "Royal Beard Color Ritual",
+    price: 1300,
+    duration: 60,
+    category: "COLOR",
+    img: "https://images.unsplash.com/photo-1605497788044-5a32c7078486?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 12,
+    name: "24K Gold Facial Experience",
+    price: 2500,
+    duration: 70,
+    category: "FACIAL",
+    img: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 13,
+    name: "Luxury Facial Steam Therapy",
+    price: 3500,
+    duration: 75,
+    category: "THERAPY",
+    img: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 14,
+    name: "Royal Head Steam Treatment",
+    price: 3500,
+    duration: 60,
+    category: "THERAPY",
+    img: "https://images.unsplash.com/photo-1600948836101-f9ffda59d250?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 15,
+    name: "Smooth Finish Full Face Wax",
+    price: 1000,
+    duration: 35,
+    category: "SKIN",
+    img: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 16,
+    name: "Precision Nose & Ear Wax",
+    price: 500,
+    duration: 15,
+    category: "SKIN",
+    img: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 17,
+    name: "Deep Renewal Facial Scrub",
+    price: 1500,
+    duration: 45,
+    category: "FACIAL",
+    img: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&q=80&w=800"
+  },
+
 ];
 
 const TESTIMONIALS = [
@@ -175,6 +280,7 @@ const BookingModal = ({ isOpen, onClose }) => {
   const [dateError, setDateError] = useState("");
   const today = useMemo(() => new Date().toISOString().split('T')[0], []);
   const slots = ["09:00 AM", "10:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM", "08:00 PM"];
+
   useEffect(() => {
     if (bookingData.date) {
       fetch(
@@ -233,10 +339,10 @@ const BookingModal = ({ isOpen, onClose }) => {
     }
   };
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] overflow-y-auto flex items-start justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose}></div>
       <div className="bg-white w-full max-w-2xl relative rounded-2xl overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.25)] animate-in zoom-in-95 duration-500">
-        <div className="flex h-[600px]">
+        <div className="flex max-h-[90vh]">
           {/* Left Visual Sidebar */}
           <div className="hidden md:block w-1/3 bg-black p-8 text-white relative">
             <div className="h-full flex flex-col justify-between">
@@ -255,7 +361,7 @@ const BookingModal = ({ isOpen, onClose }) => {
           <div className="flex-1 p-10 relative flex flex-col">
             <button onClick={onClose} className="absolute top-6 right-6 text-gray-300 hover:text-black transition-colors"><X size={20} /></button>
 
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar touch-pan-y min-h-0">
               {step === 1 && (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <h2 className="text-2xl font-black mb-6 uppercase tracking-tight">Select Ritual</h2>
