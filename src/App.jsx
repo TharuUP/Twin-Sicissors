@@ -90,12 +90,7 @@ const validateIdentity = (data) => {
 const Navbar = ({ onBookNow, onDashboard }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  <button
-    onClick={onDashboard}
-    className={`text-[10px] font-black uppercase tracking-widest hover:text-red-600 transition-all`}
-  >
-    Dashboard
-  </button>
+
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
@@ -154,8 +149,17 @@ const Navbar = ({ onBookNow, onDashboard }) => {
         <div className="lg:hidden bg-white fixed inset-0 z-50 flex flex-col items-center justify-center gap-10 animate-in fade-in duration-300">
           <button onClick={() => setIsOpen(false)} className="absolute top-8 right-8 text-gray-400"><X size={32} /></button>
           {['Home', 'About', 'Services', 'Contact'].map(item => (
-            <button key={item} onClick={() => scrollTo(item.toLowerCase())} className="text-4xl font-black uppercase tracking-tighter">{item}</button>
+            <button key={item} onClick={() => scrollTo(item.toLowerCase())} className="text-4xl font-black uppercase tracking-tighter text-red-600">{item}</button>
           ))}
+          <button
+            onClick={() => {
+              onDashboard();
+              setIsOpen(false);
+            }}
+            className="text-4xl font-black uppercase tracking-tighter text-red-600"
+          >
+            Dashboard
+          </button>
           <button onClick={() => { onBookNow(); setIsOpen(false); }} className="bg-red-600 text-white px-12 py-5 font-black tracking-widest uppercase mt-4">BOOK NOW</button>
         </div>
       )}
