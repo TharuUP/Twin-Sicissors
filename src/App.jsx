@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Calendar,
   Clock,
@@ -42,7 +42,7 @@ const SERVICES = [
     price: 800,
     duration: 45,
     category: "CUTTING",
-    img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/haircut.jpg`
   },
   {
     id: 2,
@@ -50,7 +50,7 @@ const SERVICES = [
     price: 500,
     duration: 30,
     category: "CUTTING",
-    img: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Prestige School Cut.jpeg`
   },
   {
     id: 3,
@@ -58,7 +58,7 @@ const SERVICES = [
     price: 500,
     duration: 30,
     category: "CUTTING",
-    img: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Little Prince Cut (Kids Cut)).jpg`
   },
   {
     id: 4,
@@ -66,7 +66,7 @@ const SERVICES = [
     price: 500,
     duration: 25,
     category: "SHAVING",
-    img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Gentleman Classic Shave.jpeg`
   },
   {
     id: 5,
@@ -74,15 +74,15 @@ const SERVICES = [
     price: 800,
     duration: 30,
     category: "SHAVING",
-    img: "https://images.unsplash.com/photo-1590540179859-7b8c3c8c1d57?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Executive Beard Sculpt.jpg`
   },
   {
     id: 6,
-    name: "Relaxation Therapy Massage",
+    name: "Relaxation Head Massage",
     price: 800,
     duration: 40,
     category: "MASSAGE",
-    img: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Relaxation Head Massage.jpg`
   },
   {
     id: 7,
@@ -90,7 +90,7 @@ const SERVICES = [
     price: 1000,
     duration: 45,
     category: "THERAPY",
-    img: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Royal Oil & Tonic Ritual.jpeg`
   },
   {
     id: 8,
@@ -98,7 +98,7 @@ const SERVICES = [
     price: 2500,
     duration: 60,
     category: "FACIAL",
-    img: "https://images.unsplash.com/photo-1596178060810-72d5c6c6f6f1?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Diamond Glow Facial.jpg`
   },
   {
     id: 9,
@@ -106,23 +106,23 @@ const SERVICES = [
     price: 1000,
     duration: 45,
     category: "FACIAL",
-    img: "https://images.unsplash.com/photo-1600334129128-685c5582fd35?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Premium Skin Cleanse.jpg`
   },
   {
     id: 10,
-    name: "Elite Color Transformation",
-    price: 1500,
+    name: "Royal Hair Black Color Ritual",
+    price: 800,
     duration: 90,
     category: "COLOR",
-    img: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Royal Beard Black Color Ritual.jpg`
   },
   {
     id: 11,
-    name: "Royal Beard Color Ritual",
-    price: 1300,
+    name: "Royal Beard Black Color Ritual",
+    price: 500,
     duration: 60,
     category: "COLOR",
-    img: "https://images.unsplash.com/photo-1605497788044-5a32c7078486?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Royal Hair Black Color Ritual.jpg`
   },
   {
     id: 12,
@@ -130,7 +130,7 @@ const SERVICES = [
     price: 2500,
     duration: 70,
     category: "FACIAL",
-    img: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/24K Gold Facial Experience.jpg`
   },
   {
     id: 13,
@@ -138,7 +138,7 @@ const SERVICES = [
     price: 3500,
     duration: 75,
     category: "THERAPY",
-    img: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Luxury Facial Steam Therapy.jpg`
   },
   {
     id: 14,
@@ -146,7 +146,7 @@ const SERVICES = [
     price: 3500,
     duration: 60,
     category: "THERAPY",
-    img: "https://images.unsplash.com/photo-1600948836101-f9ffda59d250?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Royal Head Steam Treatment.jpg`
   },
   {
     id: 15,
@@ -154,7 +154,7 @@ const SERVICES = [
     price: 1000,
     duration: 35,
     category: "SKIN",
-    img: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Smooth Finish Full Face Wax.jpg`
   },
   {
     id: 16,
@@ -162,7 +162,7 @@ const SERVICES = [
     price: 500,
     duration: 15,
     category: "SKIN",
-    img: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Precision Nose & Ear Wax.jpg`
   },
   {
     id: 17,
@@ -170,9 +170,16 @@ const SERVICES = [
     price: 1500,
     duration: 45,
     category: "FACIAL",
-    img: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&q=80&w=800"
+    img: `${import.meta.env.BASE_URL}images/Deep Renewal Facial Scrub.jpeg`
   },
-
+  {
+    id: 18,
+    name: "Elite Color Transformation",
+    price: 200,
+    duration: 90,
+    category: "COLOR",
+    img: `${import.meta.env.BASE_URL}images/Elite Color Transformation.jpeg`
+  }
 ];
 
 const TESTIMONIALS = [
@@ -192,7 +199,7 @@ const validateIdentity = (data) => {
 
 // --- Components ---
 
-const Navbar = ({ onBookNow, onDashboard }) => {
+const Navbar = ({ onBookNow, onDashboard, goHome }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -202,20 +209,43 @@ const Navbar = ({ onBookNow, onDashboard }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) {
-      window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
-      setIsOpen(false);
+  // 🔥 STEP 2 — ADD THIS HERE
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
     }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
+
+  const scrollTo = (id) => {
+    if (goHome) goHome();   // 🔥 force home view first
+
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        window.scrollTo({
+          top: el.offsetTop - 80,
+          behavior: "smooth"
+        });
+      }
+    }, 100);
+
+    setIsOpen(false);
   };
 
+
+
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-700 ${isScrolled ? 'bg-white/90 backdrop-blur-xl py-6 shadow-sm border-b border-gray-100' : 'bg-transparent py-12'}`}>
+    <nav className={`fixed w-full z-50 transition-all duration-700 ${isScrolled ? 'bg-white/90 backdrop-blur-xl py-6 shadow-sm border-b border-gray-100' : 'bg-transparent py-6 md:py-12'}`}>
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 flex justify-between items-center">
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => scrollTo('home')}>
           <div className="flex flex-col">
-            <span className={`font-black text-4xl tracking-tighter leading-none transition-colors ${isScrolled ? 'text-black' : 'text-white'}`}>TWIN SCISSORS</span>
+            <span className={`font-black text-2xl md:text-3xl tracking-tighter leading-none transition-colors ${isScrolled ? 'text-black' : 'text-white'}`}>TWIN SCISSORS</span>
             <span className="text-red-600 text-[9px] tracking-[0.5em] font-bold uppercase">Orugodawatta Lounge</span>
           </div>
         </div>
@@ -251,7 +281,7 @@ const Navbar = ({ onBookNow, onDashboard }) => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="lg:hidden bg-white fixed inset-0 z-50 flex flex-col items-center justify-center gap-10 animate-in fade-in duration-300">
+        <div className="fixed top-0 left-0 w-full h-screen bg-white z-[999] flex flex-col items-center justify-center gap-10 animate-in fade-in duration-300">
           <button onClick={() => setIsOpen(false)} className="absolute top-8 right-8 text-gray-400"><X size={32} /></button>
           {['Home', 'About', 'Services', 'Contact'].map(item => (
             <button key={item} onClick={() => scrollTo(item.toLowerCase())} className="text-4xl font-black uppercase tracking-tighter text-red-600">{item}</button>
@@ -274,13 +304,23 @@ const Navbar = ({ onBookNow, onDashboard }) => {
 
 const BookingModal = ({ isOpen, onClose }) => {
   const [step, setStep] = useState(1);
-  const [bookingData, setBookingData] = useState({ service: null, date: '', slot: '', name: '', phone: '', email: '' });
+  const [bookingData, setBookingData] = useState({
+    services: [],   // ✅ ADD THIS
+    date: "",
+    slot: "",
+    name: "",
+    phone: "",
+    email: ""
+  });
   const [errors, setErrors] = useState({});
   const [bookedSlots, setBookedSlots] = useState([]);
   const [dateError, setDateError] = useState("");
   const today = useMemo(() => new Date().toISOString().split('T')[0], []);
   const slots = ["09:00 AM", "10:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM", "08:00 PM"];
-
+  const totalPrice = (bookingData.services || []).reduce(
+    (sum, s) => sum + s.price,
+    0
+  );
   useEffect(() => {
     if (bookingData.date) {
       fetch(
@@ -305,7 +345,15 @@ const BookingModal = ({ isOpen, onClose }) => {
   };
 
   const handleRebook = () => {
-    setBookingData({ service: null, date: '', slot: '', name: '', phone: '', email: '' });
+    setBookingData({
+      services: [],   // ✅ must be services array
+      date: "",
+      slot: "",
+      name: "",
+      phone: "",
+      email: ""
+    });
+
     setStep(1);
   };
 
@@ -341,7 +389,7 @@ const BookingModal = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 z-[100] overflow-y-auto flex items-start justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose}></div>
-      <div className="bg-white w-full max-w-2xl relative rounded-2xl overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.25)] animate-in zoom-in-95 duration-500">
+      <div className="bg-white w-full max-w-2xl w-full mx-2 relative rounded-2xl overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.25)] animate-in zoom-in-95 duration-500">
         <div className="flex max-h-[90vh]">
           {/* Left Visual Sidebar */}
           <div className="hidden md:block w-1/3 bg-black p-8 text-white relative">
@@ -358,7 +406,7 @@ const BookingModal = ({ isOpen, onClose }) => {
           </div>
 
           {/* Form Content */}
-          <div className="flex-1 p-10 relative flex flex-col">
+          <div className="flex-1 p-6 md:p-10 relative flex flex-col">
             <button onClick={onClose} className="absolute top-6 right-6 text-gray-300 hover:text-black transition-colors"><X size={20} /></button>
 
             <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar touch-pan-y min-h-0">
@@ -369,8 +417,26 @@ const BookingModal = ({ isOpen, onClose }) => {
                     {SERVICES.map(s => (
                       <button
                         key={s.id}
-                        onClick={() => { setBookingData({ ...bookingData, service: s }); setStep(2); }}
-                        className="w-full flex items-center justify-between p-5 border border-gray-100 rounded-xl hover:border-black hover:shadow-lg transition-all group text-left"
+                        onClick={() => {
+                          const exists = bookingData.services.find(x => x.id === s.id);
+
+                          if (exists) {
+                            setBookingData({
+                              ...bookingData,
+                              services: bookingData.services.filter(x => x.id !== s.id)
+                            });
+                          } else {
+                            setBookingData({
+                              ...bookingData,
+                              services: [...bookingData.services, s]
+                            });
+                          }
+                        }}
+                        className={`w-full flex items-center justify-between p-5 border rounded-xl transition-all
+                          ${bookingData.services.some(x => x.id === s.id)
+                            ? "border-red-600 bg-red-50"
+                            : "border-gray-100 hover:border-black hover:shadow-lg"
+                          }`}
                       >
                         <div className="flex items-center gap-4">
                           <img src={s.img} className="w-12 h-12 object-cover rounded-lg grayscale group-hover:grayscale-0 transition-all" />
@@ -383,7 +449,9 @@ const BookingModal = ({ isOpen, onClose }) => {
                       </button>
                     ))}
                   </div>
+
                 </div>
+
               )}
 
               {step === 2 && (
@@ -519,15 +587,27 @@ const BookingModal = ({ isOpen, onClose }) => {
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <h2 className="text-2xl font-black mb-6 uppercase tracking-tight">Payment Gateway</h2>
                   <div className="bg-gray-50 p-6 rounded-2xl mb-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-[10px] font-black uppercase text-gray-400">Ritual</span>
-                      <span className="text-[10px] font-black uppercase tracking-widest">{bookingData.service?.name}</span>
-                    </div>
-                    <div className="h-px bg-gray-200 mb-4"></div>
+
+                    <p className="text-[10px] font-black uppercase text-gray-400 mb-4">
+                      Selected Services
+                    </p>
+
+                    {bookingData.services.map(s => (
+                      <div key={s.id} className="flex justify-between mb-2 text-xs font-bold uppercase">
+                        <span>{s.name}</span>
+                        <span>LKR {s.price.toLocaleString()}</span>
+                      </div>
+                    ))}
+
+                    <div className="h-px bg-gray-200 my-4"></div>
+
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-black uppercase">Charge</span>
-                      <span className="text-xl font-black tracking-tighter text-red-600 uppercase">LKR {bookingData.service?.price.toLocaleString()}</span>
+                      <span className="text-xs font-black uppercase">TOTAL</span>
+                      <span className="text-xl font-black text-red-600">
+                        LKR {totalPrice.toLocaleString()}
+                      </span>
                     </div>
+
                   </div>
                   <div className="flex items-start gap-3 bg-red-50 p-4 rounded-xl text-red-600 mb-8">
                     <ShieldCheck size={24} className="shrink-0" />
@@ -552,8 +632,8 @@ const BookingModal = ({ isOpen, onClose }) => {
                               "Content-Type": "application/json"
                             },
                             body: JSON.stringify({
-                              service: bookingData.service?.name,
-                              price: bookingData.service?.price,
+                              service: bookingData.services.map(s => s.name).join(", "),
+                              price: totalPrice,
                               date: bookingData.date,
                               time: bookingData.slot,
                               name: bookingData.name,
@@ -748,7 +828,7 @@ const BookingModal = ({ isOpen, onClose }) => {
             </div>
 
             {step < 4 && (
-              <div className="flex gap-4 mt-8 pt-6 border-t border-gray-100">
+              <div className="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-gray-100">
                 {step > 1 && (
                   <button onClick={() => setStep(step - 1)} className="flex-1 p-4 text-[10px] font-black uppercase tracking-widest border border-gray-100 hover:bg-gray-50 transition-all">Back</button>
                 )}
@@ -773,6 +853,31 @@ export default function App() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [activeTest, setActiveTest] = useState(0);
 
+  const serviceRefs = useRef([]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("active-service");
+          } else {
+            entry.target.classList.remove("active-service");
+          }
+        });
+      },
+      {
+        threshold: 0.35
+      }
+    );
+
+    serviceRefs.current.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
 
   useEffect(() => {
     const int = setInterval(() => setActiveTest(v => (v + 1) % TESTIMONIALS.length), 6000);
@@ -788,6 +893,8 @@ export default function App() {
       <Navbar
         onBookNow={() => setIsBookingOpen(true)}
         onDashboard={() => setView("admin")}
+        goHome={() => setView("home")}
+
       />
       <BookingModal isOpen={isBookingOpen} onClose={() => setIsBookingOpen(false)} />
 
@@ -807,8 +914,9 @@ export default function App() {
             <div className="h-px w-12 bg-red-600"></div>
             <span className="text-white text-[10px] font-black uppercase tracking-[0.5em]">The Grooming Standard</span>
           </div>
-          <h1 className="text-white text-6xl md:text-[140px] font-black mb-10 tracking-tighter leading-[0.8] uppercase">
-            Twin <br /><span className="text-red-600">Scissors</span>
+          <h1 className="text-white text-5xl sm:text-6xl md:text-[140px] font-black mb-10 tracking-tighter leading-[0.9] uppercase">
+            Twin <br />
+            <span className="text-red-600">Scissors</span>
           </h1>
           <p className="text-white/60 text-sm md:text-xl mb-12 max-w-xl font-medium uppercase tracking-[0.2em] leading-relaxed">
             Orugodawatta's most exclusive barber lounge. Experience the artistry of elite grooming.
@@ -837,9 +945,26 @@ export default function App() {
           </div>
           <div className="lg:col-span-5 lg:pl-12">
             <span className="text-red-600 font-black text-[12px] uppercase tracking-[0.5em] mb-8 block">Legacy of Excellence</span>
-            <h2 className="text-6xl md:text-8xl font-black mb-10 tracking-tighter uppercase leading-[0.85]">Elite <br />Craft.</h2>
+
+            <h2 className="text-6xl md:text-8xl font-black mb-6 tracking-tighter uppercase leading-[0.85]">
+              GAJAN'S <br />ELITE CRAFT.
+            </h2>
+
+            <span className="text-red-600 text-sm uppercase tracking-[0.6em] font-bold">
+              The Vision Behind Twin Scissors
+            </span>
+            <br />
+            <br />
+
             <p className="text-gray-400 text-lg leading-relaxed mb-12 font-medium tracking-wide">
-              Twin Scissors is Orugodawatta's premier grooming destination. We believe a haircut isn't just a service—it's a ritual of confidence. Every edge is sharp and every experience is luxury.
+              Founded in 2016 by Gajan, Twin Scissors was born from a deep passion for precision and self-expression.
+              With a clear vision to elevate grooming beyond routine service, Gajan built the lounge on discipline, consistency, and respect for the craft.
+
+              From its early days to becoming Orugodawatta’s premier grooming destination, the journey has been defined by resilience and growth.
+              Every challenge strengthened the foundation. Every year refined the standard.
+
+              Today, Twin Scissors stands as more than a barbershop — it is a symbol of confidence, identity, and excellence.
+              A legacy shaped by one vision and sustained by unwavering commitment.
             </p>
           </div>
         </div>
@@ -856,16 +981,39 @@ export default function App() {
             <button onClick={() => setIsBookingOpen(true)} className="text-[11px] text-white/40 font-black uppercase tracking-[0.3em] border-b border-white/10 pb-2 hover:text-red-600 hover:border-red-600 transition-all">Start Your Booking</button>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {SERVICES.map((s, i) => (
-              <div key={s.id} className="relative aspect-[3/4] overflow-hidden group">
-                <img src={s.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[1500ms]" alt={s.name} />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8">
-                  <span className="text-red-600 text-[10px] font-black tracking-[0.3em] uppercase mb-2">{s.category}</span>
-                  <h4 className="text-2xl font-black uppercase tracking-tight mb-4">{s.name}</h4>
+              <div
+                key={s.id}
+                ref={(el) => (serviceRefs.current[i] = el)}
+                className="service-card relative aspect-[3/4] overflow-hidden"
+              >
+                <img
+                  src={s.img}
+                  alt={s.name}
+                  className="service-img w-full h-full object-cover grayscale transition-all duration-[1200ms]"
+                />
+
+                <div className="absolute inset-0 bg-black/40 opacity-0 transition-all duration-500 flex flex-col justify-end p-8 service-overlay">
+                  <span className="text-red-600 text-[10px] font-black tracking-[0.3em] uppercase mb-2">
+                    {s.category}
+                  </span>
+
+                  <h4 className="text-2xl font-black uppercase tracking-tight mb-4">
+                    {s.name}
+                  </h4>
+
                   <div className="flex justify-between items-end border-t border-white/20 pt-4">
-                    <p className="text-lg font-black tracking-tighter">LKR {s.price.toLocaleString()}</p>
-                    <button onClick={() => setIsBookingOpen(true)} className="text-[10px] font-black uppercase tracking-widest border border-white px-4 py-2 hover:bg-white hover:text-black transition-all">Reserve</button>
+                    <p className="text-lg font-black tracking-tighter">
+                      LKR {s.price.toLocaleString()}
+                    </p>
+
+                    <button
+                      onClick={() => setIsBookingOpen(true)}
+                      className="text-[10px] font-black uppercase tracking-widest border border-white px-4 py-2 hover:bg-white hover:text-black transition-all"
+                    >
+                      Reserve
+                    </button>
                   </div>
                 </div>
               </div>
@@ -895,7 +1043,7 @@ export default function App() {
       {/* FOOTER */}
       <footer id="contact" className="bg-[#111111] text-white pt-32 pb-12 px-6 md:px-12">
         <div className="max-w-[1440px] mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-24 mb-24 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-24 mb-24 items-start">
             <div className="space-y-8">
               <div className="flex flex-col">
                 <span className="font-black text-4xl tracking-tighter leading-none">TWIN SCISSORS</span>
@@ -1144,11 +1292,11 @@ const AdminDashboard = ({ onBack }) => {
           No bookings yet.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
           {bookings.map((b, i) => (
             <div
               key={b?.id || i}
-              className="bg-[#1a1a1a] p-8 rounded-2xl border border-white/5 hover:border-red-600 transition-all duration-500 hover:-translate-y-2"
+              className="bg-[#1a1a1a] p-6 md:p-8 rounded-2xl border border-white/5 hover:border-red-600 transition-all duration-500 hover:-translate-y-2"
             >
 
               {/* STATUS */}

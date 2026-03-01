@@ -14,3 +14,18 @@
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #eee;
 }
+
+/* === SERVICE SCROLL EFFECT === */
+
+.service-card.active-service .service-img {
+  filter: grayscale(0%);
+  transform: scale(1.05);
+}
+
+.service-img {
+  transition: all 1.2s ease;
+}
+
+.service-card.active-service .service-overlay {
+  opacity: 1;
+}
