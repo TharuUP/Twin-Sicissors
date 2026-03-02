@@ -22,15 +22,8 @@ import {
   RefreshCw
 } from 'lucide-react';
 
-/**
- * TWIN SCISSORS - PREMIUM EDITORIAL PLATFORM
- * Theme: High-Contrast Luxury (Dark Services Merge)
- * Tech: React, Tailwind, Lucide
- * Validation: Strict Phone (10), Name (Text Only), Email
- * Location: Orugodawatta, Colombo 14
- */
 
-// --- Configuration & Content ---
+
 const PHONE_NUMBER = "+94 75 742 3058";
 const SUPPORT_EMAIL = "twinscissors.saloon@gmail.com";
 const ADDRESS = "Baseline Rd, Orugodawatta, Colombo 01400, Sri Lanka";
@@ -114,7 +107,7 @@ const SERVICES = [
     price: 800,
     duration: 90,
     category: "COLOR",
-    img: `${import.meta.env.BASE_URL}images/Royal Beard Black Color Ritual.jpg`
+    img: `${import.meta.env.BASE_URL}images/Royal Hair Black Color Ritual.jpg`
   },
   {
     id: 11,
@@ -122,7 +115,7 @@ const SERVICES = [
     price: 500,
     duration: 60,
     category: "COLOR",
-    img: `${import.meta.env.BASE_URL}images/Royal Hair Black Color Ritual.jpg`
+    img: `${import.meta.env.BASE_URL}images/Royal Beard Black Color Ritual.jpg`
   },
   {
     id: 12,
@@ -854,6 +847,27 @@ export default function App() {
   const [activeTest, setActiveTest] = useState(0);
 
   const serviceRefs = useRef([]);
+  const aboutRef = useRef(null);
+
+  // ABOUT IMAGE OBSERVER
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("active-about");
+        } else {
+          entry.target.classList.remove("active-about");
+        }
+      },
+      { threshold: 0.4 }
+    );
+
+    if (aboutRef.current) {
+      observer.observe(aboutRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -938,8 +952,9 @@ export default function App() {
           <div className="lg:col-span-7 relative group">
             <div className="absolute -inset-10 border border-gray-100 -z-10 translate-x-10 translate-y-10 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-1000"></div>
             <img
+              ref={aboutRef}
               src={`${import.meta.env.BASE_URL}images/about.jpg`}
-              className="w-full grayscale hover:grayscale-0 transition-all duration-1000 shadow-2xl rounded-sm"
+              className="about-img w-full grayscale transition-all duration-[1200ms] shadow-2xl rounded-sm"
               alt="Art of Grooming"
             />
           </div>

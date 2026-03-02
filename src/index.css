@@ -29,3 +29,13 @@
 .service-card.active-service .service-overlay {
   opacity: 1;
 }
+
+.about-img {
+  filter: grayscale(100%);
+  transition: all 1.2s ease;
+}
+
+.about-img.active-about {
+  filter: grayscale(0%);
+  transform: scale(1.02);
+}
