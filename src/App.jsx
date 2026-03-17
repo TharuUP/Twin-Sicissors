@@ -73,7 +73,7 @@ const SERVICES = [
     id: 6,
     name: "Relaxation Head Massage",
     price: 800,
-    duration: 40,
+    duration: 30,
     category: "MASSAGE",
     img: `${import.meta.env.BASE_URL}images/Relaxation Head Massage.jpg`
   },
@@ -81,7 +81,7 @@ const SERVICES = [
     id: 7,
     name: "Royal Oil & Tonic Ritual",
     price: 1000,
-    duration: 45,
+    duration: 40,
     category: "THERAPY",
     img: `${import.meta.env.BASE_URL}images/Royal Oil & Tonic Ritual.jpeg`
   },
@@ -172,6 +172,32 @@ const SERVICES = [
     duration: 90,
     category: "COLOR",
     img: `${import.meta.env.BASE_URL}images/Elite Color Transformation.jpeg`
+  },
+  {
+    id: 19,
+    name: "Combo 01 - Full Grooming",
+    price: 2000,
+    duration: 90,
+    category: "COMBO",
+    img: `${import.meta.env.BASE_URL}images/combo1.jpg`,
+    includes: [
+      "Royal Signature Haircut",
+      "Gentleman Classic Shave",
+      "Premium Skin Cleanse"
+    ]
+  },
+  {
+    id: 20,
+    name: "Combo 02 - Relaxation Package",
+    price: 2000,
+    duration: 110,
+    category: "COMBO",
+    img: `${import.meta.env.BASE_URL}images/combo2.jpg`,
+    includes: [
+      "Royal Signature Haircut",
+      "Gentleman Classic Shave",
+      "Relaxation Head Massage"
+    ]
   }
 ];
 
@@ -309,11 +335,17 @@ const BookingModal = ({ isOpen, onClose }) => {
   const [bookedSlots, setBookedSlots] = useState([]);
   const [dateError, setDateError] = useState("");
   const today = useMemo(() => new Date().toISOString().split('T')[0], []);
-  const slots = ["09:00 AM", "10:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM", "08:00 PM"];
-  const totalPrice = (bookingData.services || []).reduce(
+  const slots = ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM", "08:00 PM"];
+  const totalPriceRaw = (bookingData.services || []).reduce(
     (sum, s) => sum + s.price,
     0
   );
+
+  const isComboDiscount = bookingData.services.length >= 3;
+
+  const totalPrice = isComboDiscount
+    ? Math.round(totalPriceRaw * 0.8) // 20% discount
+    : totalPriceRaw;
   useEffect(() => {
     if (bookingData.date) {
       fetch(
@@ -435,6 +467,12 @@ const BookingModal = ({ isOpen, onClose }) => {
                           <img src={s.img} className="w-12 h-12 object-cover rounded-lg grayscale group-hover:grayscale-0 transition-all" />
                           <div>
                             <p className="font-bold text-xs tracking-widest uppercase">{s.name}</p>
+
+                            {s.includes && (
+                              <p className="text-[9px] text-gray-400 mt-1 uppercase">
+                                {s.includes.join(" + ")}
+                              </p>
+                            )}
                             <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-widest">LKR {s.price.toLocaleString()} • {s.duration} MINS</p>
                           </div>
                         </div>
@@ -600,6 +638,11 @@ const BookingModal = ({ isOpen, onClose }) => {
                         LKR {totalPrice.toLocaleString()}
                       </span>
                     </div>
+                    {isComboDiscount && (
+                      <p className="text-green-600 text-xs mt-2 font-bold uppercase">
+                        ✔ 20% Combo Discount Applied
+                      </p>
+                    )}
 
                   </div>
                   <div className="flex items-start gap-3 bg-red-50 p-4 rounded-xl text-red-600 mb-8">
