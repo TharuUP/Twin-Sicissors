@@ -182,7 +182,7 @@ const SERVICES = [
     img: `${import.meta.env.BASE_URL}images/combo1.jpg`,
     includes: [
       "Royal Signature Haircut",
-      "Gentleman Classic Shave",
+      "Executive Beard Sculpt",
       "Premium Skin Cleanse"
     ]
   },
@@ -195,7 +195,7 @@ const SERVICES = [
     img: `${import.meta.env.BASE_URL}images/combo2.jpg`,
     includes: [
       "Royal Signature Haircut",
-      "Gentleman Classic Shave",
+      "Executive Beard Sculpt",
       "Relaxation Head Massage"
     ]
   },
@@ -208,7 +208,7 @@ const SERVICES = [
     img: `${import.meta.env.BASE_URL}images/combo3.jpg`,
     includes: [
       "Royal Signature Haircut",
-      "Gentleman Classic Shave",
+      "Executive Beard Sculpt",
     ]
   }
 ];
