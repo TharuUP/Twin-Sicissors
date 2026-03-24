@@ -198,6 +198,18 @@ const SERVICES = [
       "Gentleman Classic Shave",
       "Relaxation Head Massage"
     ]
+  },
+    {
+    id: 21,
+    name: "Combo 03 - Royal Package",
+    price: 1500,
+    duration: 80,
+    category: "COMBO",
+    img: `${import.meta.env.BASE_URL}images/combo3.jpg`,
+    includes: [
+      "Royal Signature Haircut",
+      "Gentleman Classic Shave",
+    ]
   }
 ];
 
