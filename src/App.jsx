@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { ADMIN_PASS } from "./config";
 import {
   Calendar,
   Clock,
@@ -564,7 +565,7 @@ const BookingModal = ({ isOpen, onClose }) => {
 
                       const isInvalidDay =
                         bookingData.date &&
-                        ![2, 3, 4].includes(new Date(bookingData.date).getDay());
+                        ![2, 3, 4, 5].includes(new Date(bookingData.date).getDay());
 
                       const disabled = isPast || isBooked || isBlocked || isInvalidDay;
 
@@ -904,6 +905,333 @@ const BookingModal = ({ isOpen, onClose }) => {
   );
 };
 
+const AdminDashboard = ({ onBack }) => {
+
+  const [authenticated, setAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [blockedSlots, setBlockedSlots] = useState([]);
+  const [bookedSlots, setBookedSlots] = useState([]);
+
+  const slots = [
+    "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
+    "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM",
+    "05:00 PM", "06:00 PM", "07:00 PM", "08:00 PM"
+  ];
+
+  useEffect(() => {
+    if (selectedDate) {
+      fetch(`https://twinscissors.pythonanywhere.com/slots/${selectedDate}`)
+        .then(res => res.json())
+        .then(setBookedSlots);
+
+      fetch(`https://twinscissors.pythonanywhere.com/blocked/${selectedDate}`)
+        .then(res => res.json())
+        .then(setBlockedSlots);
+    }
+  }, [selectedDate]);
+
+
+  useEffect(() => {
+    if (authenticated) {
+      setLoading(true);
+
+      fetch("https://twinscissors.pythonanywhere.com/bookings")
+        .then(res => res.json())
+        .then(data => {
+          console.log("API DATA:", data);
+          setBookings(data);
+          setLoading(false);
+        })
+        .catch(() => {
+          setBookings([]);
+          setLoading(false);
+        });
+    }
+  }, [authenticated]);
+
+  /* ===== LOGIN SCREEN ===== */
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="bg-white p-12 rounded-2xl w-full max-w-md text-center shadow-2xl">
+          <h2 className="text-2xl font-black uppercase mb-6">
+            Admin Access
+          </h2>
+
+          <input
+            type="password"
+            placeholder="Enter Passcode"
+            className="w-full p-4 border border-gray-200 rounded-xl mb-6 text-center"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <div className="flex gap-4">
+            <button
+              onClick={onBack}
+              className="flex-1 border border-gray-200 py-3 rounded-xl"
+            >
+              Back
+            </button>
+
+            <button
+              onClick={() =>
+                password === ADMIN_PASS
+                  ? setAuthenticated(true)
+                  : alert("Wrong Password")
+              }
+              className="flex-1 bg-black text-white py-3 rounded-xl"
+            >
+              Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
+
+  const toggleSlot = async (slot) => {
+    const isBlocked = blockedSlots.includes(slot);
+
+    if (isBlocked) {
+      await fetch("https://twinscissors.pythonanywhere.com/unblock-slot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date: selectedDate, time: slot })
+      });
+    } else {
+      await fetch("https://twinscissors.pythonanywhere.com/block-slot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date: selectedDate, time: slot })
+      });
+    }
+
+    // reload
+    // reload slots properly
+    fetch(`https://twinscissors.pythonanywhere.com/slots/${selectedDate}`)
+      .then(res => res.json())
+      .then(setBookedSlots);
+
+    fetch(`https://twinscissors.pythonanywhere.com/blocked/${selectedDate}`)
+      .then(res => res.json())
+      .then(setBlockedSlots);
+  };
+
+
+
+  const handleConfirm = async (id) => {
+    try {
+      await fetch(
+        `https://twinscissors.pythonanywhere.com/confirm/${id}`,
+        { method: "POST" }
+      );
+
+      // 🔥 Instant UI update (no double click)
+      setBookings(prev =>
+        prev.map(b =>
+          b.id === id ? { ...b, status: "confirmed" } : b
+        )
+      );
+
+    } catch {
+      alert("Failed to confirm");
+    }
+  };
+
+  const handleCancel = async (id) => {
+    try {
+      await fetch(
+        `https://twinscissors.pythonanywhere.com/cancel/${id}`,
+        { method: "POST" }
+      );
+
+      setBookings(prev =>
+        prev.map(b =>
+          b.id === id ? { ...b, status: "cancelled" } : b
+        )
+      );
+
+    } catch {
+      alert("Failed to cancel");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this booking permanently?")) return;
+
+    try {
+      await fetch(
+        `https://twinscissors.pythonanywhere.com/delete/${id}`,
+        { method: "POST" }
+      );
+
+      setBookings(prev =>
+        prev.filter(b => b.id !== id)
+      );
+
+    } catch {
+      alert("Delete failed");
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (!window.confirm("This will delete ALL bookings. Continue?")) return;
+
+    try {
+      await fetch(
+        "https://twinscissors.pythonanywhere.com/clear-all",
+        { method: "POST" }
+      );
+
+      setBookings([]); // instant UI wipe
+
+    } catch {
+      alert("Failed to clear");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0f0f0f] text-white p-10">
+      {/* 🔥 SLOT MANAGER */}
+      <div className="mb-10">
+        <h2 className="text-xl font-bold mb-4">Manage Booking Slots</h2>
+
+        <input
+          type="date"
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className="text-black p-3 rounded-lg"
+        />
+
+        {/* SLOT BUTTONS */}
+        {selectedDate && (
+          <div className="grid grid-cols-3 gap-3 mt-6">
+            {slots.map(slot => {
+              const isBooked = bookedSlots.includes(slot);
+              const isBlocked = blockedSlots.includes(slot);
+
+              return (
+                <button
+                  key={slot}
+                  disabled={isBooked}
+                  onClick={() => toggleSlot(slot)}
+                  className={`
+              p-3 text-xs font-bold rounded-lg
+              ${isBooked ? "bg-gray-500 cursor-not-allowed" :
+                      isBlocked ? "bg-red-600" :
+                        "bg-green-500"}
+            `}
+                >
+                  {slot}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-16">
+        <h1 className="text-4xl font-black tracking-tight uppercase">
+          Booking Dashboard
+        </h1>
+
+        <button
+          onClick={onBack}
+          className="bg-white text-black px-6 py-3 rounded-xl font-bold hover:bg-red-600 hover:text-white transition-all duration-300"
+        >
+          Exit
+        </button>
+        <button
+          onClick={handleClearAll}
+          className="bg-red-700 px-6 py-3 rounded-xl font-bold hover:bg-red-800 transition-all"
+        >
+          Clear All
+        </button>
+      </div>
+
+      {/* BOOKINGS */}
+      {loading ? (
+        <div className="text-gray-400">Loading bookings...</div>
+      ) : !bookings || bookings.length === 0 ? (
+        <div className="text-center text-gray-500 py-24 border border-white/10 rounded-2xl">
+          No bookings yet.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          {bookings.map((b, i) => (
+            <div
+              key={b?.id || i}
+              className="bg-[#1a1a1a] p-6 md:p-8 rounded-2xl border border-white/5 hover:border-red-600 transition-all duration-500 hover:-translate-y-2"
+            >
+
+              {/* STATUS */}
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-xs uppercase tracking-widest text-gray-500">
+                  Booking #{i + 1}
+                </span>
+
+                <span
+                  className={`px-3 py-1 text-xs font-bold rounded-full ${b?.status === "confirmed"
+                    ? "bg-green-600"
+                    : b?.status === "cancelled"
+                      ? "bg-red-600"
+                      : "bg-yellow-500"}`}
+                >
+                  {b?.status || "Pending"}
+                </span>
+              </div>
+
+              {/* CLIENT */}
+              <h2 className="text-xl font-black mb-2">
+                {b?.name || "No Name"}
+              </h2>
+
+              <p className="text-gray-400 text-sm mb-6">
+                {b?.service || "Service"}
+              </p>
+
+              <div className="space-y-2 text-sm text-gray-300">
+                <p>📅 {b?.date || "-"}</p>
+                <p>⏰ {b?.time || "-"}</p>
+                <p>📞 {b?.phone || "-"}</p>
+              </div>
+
+              {/* ACTIONS */}
+              <div className="mt-8 flex gap-3">
+                <button
+                  onClick={() => handleConfirm(b?.id)}
+                  className="flex-1 bg-green-600 py-2 rounded-lg text-sm font-bold hover:bg-green-700 transition-all"
+                >
+                  Confirm
+                </button>
+
+                <button
+                  onClick={() => handleCancel(b?.id)}
+                  className="flex-1 bg-red-600 py-2 rounded-lg text-sm font-bold hover:bg-red-700 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDelete(b.id)}
+                  className="flex-1 bg-gray-700 py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition-all"
+                >
+                  Delete
+                </button>
+              </div>
+
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function App() {
   const [view, setView] = useState("home"); // home | admin
   const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -1200,325 +1528,6 @@ export default function App() {
     </div>
   );
 }
-const ADMIN_PASS = "Twin@2026";
-
-
-const AdminDashboard = ({ onBack }) => {
-
-  const [authenticated, setAuthenticated] = useState(false);
-  const [password, setPassword] = useState("");
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (authenticated) {
-      setLoading(true);
-
-      fetch("https://twinscissors.pythonanywhere.com/bookings")
-        .then(res => res.json())
-        .then(data => {
-          console.log("API DATA:", data);
-          setBookings(data);
-          setLoading(false);
-        })
-        .catch(() => {
-          setBookings([]);
-          setLoading(false);
-        });
-    }
-  }, [authenticated]);
-
-  /* ===== LOGIN SCREEN ===== */
-  if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="bg-white p-12 rounded-2xl w-full max-w-md text-center shadow-2xl">
-          <h2 className="text-2xl font-black uppercase mb-6">
-            Admin Access
-          </h2>
-
-          <input
-            type="password"
-            placeholder="Enter Passcode"
-            className="w-full p-4 border border-gray-200 rounded-xl mb-6 text-center"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-
-          <div className="flex gap-4">
-            <button
-              onClick={onBack}
-              className="flex-1 border border-gray-200 py-3 rounded-xl"
-            >
-              Back
-            </button>
-
-            <button
-              onClick={() =>
-                password === ADMIN_PASS
-                  ? setAuthenticated(true)
-                  : alert("Wrong Password")
-              }
-              className="flex-1 bg-black text-white py-3 rounded-xl"
-            >
-              Login
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const [selectedDate, setSelectedDate] = useState("");
-  const [blockedSlots, setBlockedSlots] = useState([]);
-  const [bookedSlots, setBookedSlots] = useState([]);
-
-  const slots = ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM", "08:00 PM"];
-
-  useEffect(() => {
-    if (selectedDate) {
-      fetch(`https://twinscissors.pythonanywhere.com/slots/${selectedDate}`)
-        .then(res => res.json())
-        .then(setBookedSlots);
-
-      fetch(`https://twinscissors.pythonanywhere.com/blocked/${selectedDate}`)
-        .then(res => res.json())
-        .then(setBlockedSlots);
-    }
-  }, [selectedDate]);
-
-  const toggleSlot = async (slot) => {
-    const isBlocked = blockedSlots.includes(slot);
-
-    if (isBlocked) {
-      await fetch("https://twinscissors.pythonanywhere.com/unblock-slot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: selectedDate, time: slot })
-      });
-    } else {
-      await fetch("https://twinscissors.pythonanywhere.com/block-slot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: selectedDate, time: slot })
-      });
-    }
-
-    // reload
-    // reload slots properly
-    fetch(`https://twinscissors.pythonanywhere.com/slots/${selectedDate}`)
-      .then(res => res.json())
-      .then(setBookedSlots);
-
-    fetch(`https://twinscissors.pythonanywhere.com/blocked/${selectedDate}`)
-      .then(res => res.json())
-      .then(setBlockedSlots);
-  };
 
 
 
-  const handleConfirm = async (id) => {
-    try {
-      await fetch(
-        `https://twinscissors.pythonanywhere.com/confirm/${id}`,
-        { method: "POST" }
-      );
-
-      // 🔥 Instant UI update (no double click)
-      setBookings(prev =>
-        prev.map(b =>
-          b.id === id ? { ...b, status: "confirmed" } : b
-        )
-      );
-
-    } catch {
-      alert("Failed to confirm");
-    }
-  };
-
-  const handleCancel = async (id) => {
-    try {
-      await fetch(
-        `https://twinscissors.pythonanywhere.com/cancel/${id}`,
-        { method: "POST" }
-      );
-
-      setBookings(prev =>
-        prev.map(b =>
-          b.id === id ? { ...b, status: "cancelled" } : b
-        )
-      );
-
-    } catch {
-      alert("Failed to cancel");
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this booking permanently?")) return;
-
-    try {
-      await fetch(
-        `https://twinscissors.pythonanywhere.com/delete/${id}`,
-        { method: "POST" }
-      );
-
-      setBookings(prev =>
-        prev.filter(b => b.id !== id)
-      );
-
-    } catch {
-      alert("Delete failed");
-    }
-  };
-
-  const handleClearAll = async () => {
-    if (!window.confirm("This will delete ALL bookings. Continue?")) return;
-
-    try {
-      await fetch(
-        "https://twinscissors.pythonanywhere.com/clear-all",
-        { method: "POST" }
-      );
-
-      setBookings([]); // instant UI wipe
-
-    } catch {
-      alert("Failed to clear");
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-[#0f0f0f] text-white p-10">
-      {/* 🔥 SLOT MANAGER */}
-      <div className="mb-10">
-        <h2 className="text-xl font-bold mb-4">Manage Booking Slots</h2>
-
-        <input
-          type="date"
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="text-black p-3 rounded-lg"
-        />
-
-        {/* SLOT BUTTONS */}
-        {selectedDate && (
-          <div className="grid grid-cols-3 gap-3 mt-6">
-            {slots.map(slot => {
-              const isBooked = bookedSlots.includes(slot);
-              const isBlocked = blockedSlots.includes(slot);
-
-              return (
-                <button
-                  key={slot}
-                  disabled={isBooked}
-                  onClick={() => toggleSlot(slot)}
-                  className={`
-              p-3 text-xs font-bold rounded-lg
-              ${isBooked ? "bg-gray-500 cursor-not-allowed" :
-                      isBlocked ? "bg-red-600" :
-                        "bg-green-500"}
-            `}
-                >
-                  {slot}
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-16">
-        <h1 className="text-4xl font-black tracking-tight uppercase">
-          Booking Dashboard
-        </h1>
-
-        <button
-          onClick={onBack}
-          className="bg-white text-black px-6 py-3 rounded-xl font-bold hover:bg-red-600 hover:text-white transition-all duration-300"
-        >
-          Exit
-        </button>
-        <button
-          onClick={handleClearAll}
-          className="bg-red-700 px-6 py-3 rounded-xl font-bold hover:bg-red-800 transition-all"
-        >
-          Clear All
-        </button>
-      </div>
-
-      {/* BOOKINGS */}
-      {loading ? (
-        <div className="text-gray-400">Loading bookings...</div>
-      ) : !bookings || bookings.length === 0 ? (
-        <div className="text-center text-gray-500 py-24 border border-white/10 rounded-2xl">
-          No bookings yet.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {bookings.map((b, i) => (
-            <div
-              key={b?.id || i}
-              className="bg-[#1a1a1a] p-6 md:p-8 rounded-2xl border border-white/5 hover:border-red-600 transition-all duration-500 hover:-translate-y-2"
-            >
-
-              {/* STATUS */}
-              <div className="flex justify-between items-center mb-6">
-                <span className="text-xs uppercase tracking-widest text-gray-500">
-                  Booking #{i + 1}
-                </span>
-
-                <span
-                  className={`px-3 py-1 text-xs font-bold rounded-full ${b?.status === "confirmed"
-                    ? "bg-green-600"
-                    : "bg-red-600"
-                    }`}
-                >
-                  {b?.status || "Pending"}
-                </span>
-              </div>
-
-              {/* CLIENT */}
-              <h2 className="text-xl font-black mb-2">
-                {b?.name || "No Name"}
-              </h2>
-
-              <p className="text-gray-400 text-sm mb-6">
-                {b?.service || "Service"}
-              </p>
-
-              <div className="space-y-2 text-sm text-gray-300">
-                <p>📅 {b?.date || "-"}</p>
-                <p>⏰ {b?.time || "-"}</p>
-                <p>📞 {b?.phone || "-"}</p>
-              </div>
-
-              {/* ACTIONS */}
-              <div className="mt-8 flex gap-3">
-                <button
-                  onClick={() => handleConfirm(b?.id)}
-                  className="flex-1 bg-green-600 py-2 rounded-lg text-sm font-bold hover:bg-green-700 transition-all"
-                >
-                  Confirm
-                </button>
-
-                <button
-                  onClick={() => handleCancel(b?.id)}
-                  className="flex-1 bg-red-600 py-2 rounded-lg text-sm font-bold hover:bg-red-700 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleDelete(b.id)}
-                  className="flex-1 bg-gray-700 py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition-all"
-                >
-                  Delete
-                </button>
-              </div>
-
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};

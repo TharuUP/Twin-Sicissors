@@ -1,0 +1,1 @@
+export const ADMIN_PASS = "Twin@2026";
