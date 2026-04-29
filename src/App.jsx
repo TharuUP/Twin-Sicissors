@@ -349,7 +349,27 @@ const BookingModal = ({ isOpen, onClose }) => {
   const [blockedSlots, setBlockedSlots] = useState([]);
   const [dateError, setDateError] = useState("");
   const today = useMemo(() => new Date().toISOString().split('T')[0], []);
-  const slots = ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM", "08:00 PM"];
+  const getSlots = () => {
+    if (!bookingData.date) return [];
+
+    const day = new Date(bookingData.date).getDay();
+
+    // Monday → only until 4PM
+    if (day === 1) {
+      return [
+        "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
+        "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM"
+      ];
+    }
+
+    // Tue–Fri → full
+    return [
+      "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
+      "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM",
+      "05:00 PM", "06:00 PM", "07:00 PM", "08:00 PM",
+      "09:00 PM", "10:00 PM"
+    ];
+  };
   const totalPriceRaw = (bookingData.services || []).reduce(
     (sum, s) => sum + s.price,
     0
@@ -518,8 +538,8 @@ const BookingModal = ({ isOpen, onClose }) => {
                         const day = dateObj.getDay();
                         // Sunday=0 Monday=1 Tuesday=2 Wednesday=3 Thursday=4 Friday=5 Saturday=6
 
-                        if (![2, 3, 4, 5].includes(day)) {
-                          setDateError("Bookings available only Tuesday to Friday");
+                        if (![1, 2, 3, 4, 5].includes(day)) {
+                          setDateError("Bookings available Monday to Friday");
                           setBookingData({ ...bookingData, date: "", slot: "" });
                           return;
                         }
@@ -537,7 +557,7 @@ const BookingModal = ({ isOpen, onClose }) => {
                   </div>
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-3">Available Windows</label>
                   <div className="grid grid-cols-2 gap-2">
-                    {slots.map((slot) => {
+                    {getSlots().map((slot) => {
 
                       const now = new Date();
                       const selectedDate = new Date(bookingData.date);
@@ -565,7 +585,7 @@ const BookingModal = ({ isOpen, onClose }) => {
 
                       const isInvalidDay =
                         bookingData.date &&
-                        ![2, 3, 4, 5].includes(new Date(bookingData.date).getDay());
+                        ![1, 2, 3, 4, 5].includes(new Date(bookingData.date).getDay());
 
                       const disabled = isPast || isBooked || isBlocked || isInvalidDay;
 
@@ -1528,6 +1548,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
