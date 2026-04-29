@@ -348,7 +348,13 @@ const BookingModal = ({ isOpen, onClose }) => {
   const [bookedSlots, setBookedSlots] = useState([]);
   const [blockedSlots, setBlockedSlots] = useState([]);
   const [dateError, setDateError] = useState("");
-  const today = useMemo(() => new Date().toISOString().split('T')[0], []);
+
+  const today = useMemo(() => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().split("T")[0];
+  }, []);
+
   const getSlots = () => {
     if (!bookingData.date) return [];
 
@@ -534,6 +540,20 @@ const BookingModal = ({ isOpen, onClose }) => {
                       className="w-full p-4 border border-gray-100 bg-gray-50 rounded-xl focus:ring-1 focus:ring-black outline-none text-xs font-bold uppercase tracking-widest"
                       onChange={(e) => {
                         const selectedDate = e.target.value;
+
+                        const todayDate = (() => {
+                          const now = new Date();
+                          now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                          return now.toISOString().split("T")[0];
+                        })();
+
+                        // ❌ BLOCK PAST DATE
+                        if (selectedDate < todayDate) {
+                          setDateError("Past dates are not allowed");
+                          setBookingData({ ...bookingData, date: "", slot: "" });
+                          return;
+                        }
+
                         const dateObj = new Date(selectedDate);
                         const day = dateObj.getDay();
                         // Sunday=0 Monday=1 Tuesday=2 Wednesday=3 Thursday=4 Friday=5 Saturday=6
