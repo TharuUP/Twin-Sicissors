@@ -1,0 +1,5 @@
+git add .
+git commit -m "Fixed past date + Monday time edge case"
+git push origin main
+npm run build
+npm run deploy
