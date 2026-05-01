@@ -1539,7 +1539,7 @@ export default function App() {
                   <Clock size={22} className="text-red-600 shrink-0" />
                   <div>
                     <p className="text-[10px] uppercase font-black text-white/30 mb-2 tracking-widest">Opening Hours</p>
-                    <p className="text-xs font-bold uppercase tracking-widest">Tue - Sun <br /> 09:00 AM - 07:00 PM</p>
+                    <p className="text-xs font-bold uppercase tracking-widest">Mon - Sun <br /> 09:00 AM - 10:00 PM</p>
                   </div>
                 </div>
               </div>
