@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { ADMIN_PASS } from "./config";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? '/api' : 'https://twinscissors.pythonanywhere.com');
 import {
   Calendar,
   Clock,
@@ -347,6 +348,7 @@ const BookingModal = ({ isOpen, onClose }) => {
   const [errors, setErrors] = useState({});
   const [bookedSlots, setBookedSlots] = useState([]);
   const [blockedSlots, setBlockedSlots] = useState([]);
+  const [slotsReady, setSlotsReady] = useState(false);
   const [dateError, setDateError] = useState("");
 
   const today = useMemo(() => {
@@ -388,19 +390,25 @@ const BookingModal = ({ isOpen, onClose }) => {
     : totalPriceRaw;
 
   useEffect(() => {
+    let active = true;
+    setSlotsReady(false);
     if (bookingData.date) {
-
-      fetch(`https://twinscissors.pythonanywhere.com/slots/${bookingData.date}`)
-        .then(res => res.json())
-        .then(data => setBookedSlots(data));
-
-      fetch(`https://twinscissors.pythonanywhere.com/blocked/${bookingData.date}`)
-        .then(res => res.json())
-        .then(data => setBlockedSlots(data));
+      Promise.all(['slots', 'availability'].map(async (endpoint) => {
+        const response = await fetch(`${API_BASE}/${endpoint}/${bookingData.date}`);
+        if (!response.ok) throw new Error('Could not load availability');
+        return response.json();
+      })).then(([booked, blocked]) => {
+        if (!active) return;
+        setBookedSlots(booked);
+        setBlockedSlots(blocked);
+        setSlotsReady(true);
+      }).catch(() => {});
     }
+    return () => { active = false; };
   }, [bookingData.date]);
 
   const handleNext = () => {
+    if (step >= 2) return;
     if (step === 3) {
       const validationErrors = validateIdentity(bookingData);
       if (Object.keys(validationErrors).length > 0) {
@@ -429,7 +437,7 @@ const BookingModal = ({ isOpen, onClose }) => {
   const checkSlotAvailability = async () => {
     try {
       const res = await fetch(
-        `https://twinscissors.pythonanywhere.com/slots/${bookingData.date}`
+        `${API_BASE}/slots/${bookingData.date}`
       );
 
       const bookedSlots = await res.json();
@@ -440,7 +448,7 @@ const BookingModal = ({ isOpen, onClose }) => {
         setStep(2);
 
         fetch(
-          `https://twinscissors.pythonanywhere.com/slots/${bookingData.date}`
+          `${API_BASE}/slots/${bookingData.date}`
         )
           .then(res => res.json())
           .then(data => setBookedSlots(data));
@@ -467,8 +475,8 @@ const BookingModal = ({ isOpen, onClose }) => {
                 <h3 className="text-2xl font-black leading-tight uppercase">Luxury awaits <br />your arrival.</h3>
               </div>
               <div className="text-[10px] text-white/30 uppercase tracking-widest leading-relaxed">
-                {step === 5 ? 'Success' : `Step ${step} of 4`} <br />
-                {step === 4 ? 'Payment Gateway' : 'Identity Verification'}
+                {`Step ${Math.min(step, 2)} of 2`} <br />
+                {'Services & Availability'}
               </div>
             </div>
           </div>
@@ -531,6 +539,7 @@ const BookingModal = ({ isOpen, onClose }) => {
               {step === 2 && (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <h2 className="text-2xl font-black mb-8 uppercase tracking-tight">Time & Date</h2>
+                  <p role="status" className="mb-6 text-sm text-gray-600">Online booking is temporarily paused. Please contact the salon to arrange your appointment.</p>
                   <div className="mb-8">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-3">Calendar Selection</label>
                     <input
@@ -601,7 +610,7 @@ const BookingModal = ({ isOpen, onClose }) => {
                         slotDateTime < now;
 
                       const isBooked = bookedSlots.includes(slot);
-                      const isBlocked = blockedSlots.includes(slot);
+                      const isBlocked = !slotsReady || blockedSlots.includes(slot);
 
                       const isInvalidDay =
                         bookingData.date &&
@@ -722,7 +731,7 @@ const BookingModal = ({ isOpen, onClose }) => {
 
                       try {
                         const response = await fetch(
-                          "https://twinscissors.pythonanywhere.com/book",
+                          `${API_BASE}/book`,
                           {
                             method: "POST",
                             headers: {
@@ -866,7 +875,7 @@ const BookingModal = ({ isOpen, onClose }) => {
 
                       try {
                         const res = await fetch(
-                          `https://twinscissors.pythonanywhere.com/upload-receipt/${bookingData.id}`,
+                          `${API_BASE}/upload-receipt/${bookingData.id}`,
                           {
                             method: "POST",
                             body: formData
@@ -930,11 +939,11 @@ const BookingModal = ({ isOpen, onClose }) => {
                   <button onClick={() => setStep(step - 1)} className="flex-1 p-4 text-[10px] font-black uppercase tracking-widest border border-gray-100 hover:bg-gray-50 transition-all">Back</button>
                 )}
                 <button
-                  disabled={(step === 2 && (!bookingData.date || !bookingData.slot))}
+                  disabled={step >= 2}
                   onClick={handleNext}
                   className="flex-[2] bg-black text-white p-4 text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all disabled:opacity-10"
                 >
-                  {step === 3 ? 'Review Ritual' : 'Continue'}
+                  {step === 2 ? 'Online booking paused' : 'Continue'}
                 </button>
               </div>
             )}
@@ -953,6 +962,7 @@ const AdminDashboard = ({ onBack }) => {
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [blockedSlots, setBlockedSlots] = useState([]);
+  const [slotsReady, setSlotsReady] = useState(false);
   const [bookedSlots, setBookedSlots] = useState([]);
 
   const slots = [
@@ -962,15 +972,21 @@ const AdminDashboard = ({ onBack }) => {
   ];
 
   useEffect(() => {
+    let active = true;
+    setSlotsReady(false);
     if (selectedDate) {
-      fetch(`https://twinscissors.pythonanywhere.com/slots/${selectedDate}`)
-        .then(res => res.json())
-        .then(setBookedSlots);
-
-      fetch(`https://twinscissors.pythonanywhere.com/blocked/${selectedDate}`)
-        .then(res => res.json())
-        .then(setBlockedSlots);
+      Promise.all(['slots', 'availability'].map(async (endpoint) => {
+        const response = await fetch(`${API_BASE}/${endpoint}/${selectedDate}`);
+        if (!response.ok) throw new Error('Could not load availability');
+        return response.json();
+      })).then(([booked, blocked]) => {
+        if (!active) return;
+        setBookedSlots(booked);
+        setBlockedSlots(blocked);
+        setSlotsReady(true);
+      }).catch(() => { if (active) alert('Could not load slots. Please select the date again.'); });
     }
+    return () => { active = false; };
   }, [selectedDate]);
 
 
@@ -978,7 +994,7 @@ const AdminDashboard = ({ onBack }) => {
     if (authenticated) {
       setLoading(true);
 
-      fetch("https://twinscissors.pythonanywhere.com/bookings")
+      fetch(`${API_BASE}/bookings`)
         .then(res => res.json())
         .then(data => {
           console.log("API DATA:", data);
@@ -1035,39 +1051,29 @@ const AdminDashboard = ({ onBack }) => {
 
 
   const toggleSlot = async (slot) => {
+    if (!slotsReady) return;
     const isBlocked = blockedSlots.includes(slot);
-
-    if (isBlocked) {
-      await fetch("https://twinscissors.pythonanywhere.com/unblock-slot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+    setSlotsReady(false);
+    try {
+      const response = await fetch(`${API_BASE}/${isBlocked ? 'unblock-slot' : 'block-slot'}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ date: selectedDate, time: slot })
       });
-    } else {
-      await fetch("https://twinscissors.pythonanywhere.com/block-slot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: selectedDate, time: slot })
-      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Could not update slot');
+      setBlockedSlots(current => isBlocked ? current.filter(time => time !== slot) : [...current, slot]);
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setSlotsReady(true);
     }
-
-    // reload
-    // reload slots properly
-    fetch(`https://twinscissors.pythonanywhere.com/slots/${selectedDate}`)
-      .then(res => res.json())
-      .then(setBookedSlots);
-
-    fetch(`https://twinscissors.pythonanywhere.com/blocked/${selectedDate}`)
-      .then(res => res.json())
-      .then(setBlockedSlots);
   };
-
-
 
   const handleConfirm = async (id) => {
     try {
       await fetch(
-        `https://twinscissors.pythonanywhere.com/confirm/${id}`,
+        `${API_BASE}/confirm/${id}`,
         { method: "POST" }
       );
 
@@ -1086,7 +1092,7 @@ const AdminDashboard = ({ onBack }) => {
   const handleCancel = async (id) => {
     try {
       await fetch(
-        `https://twinscissors.pythonanywhere.com/cancel/${id}`,
+        `${API_BASE}/cancel/${id}`,
         { method: "POST" }
       );
 
@@ -1106,7 +1112,7 @@ const AdminDashboard = ({ onBack }) => {
 
     try {
       await fetch(
-        `https://twinscissors.pythonanywhere.com/delete/${id}`,
+        `${API_BASE}/delete/${id}`,
         { method: "POST" }
       );
 
@@ -1124,7 +1130,7 @@ const AdminDashboard = ({ onBack }) => {
 
     try {
       await fetch(
-        "https://twinscissors.pythonanywhere.com/clear-all",
+        `${API_BASE}/clear-all`,
         { method: "POST" }
       );
 
@@ -1140,6 +1146,7 @@ const AdminDashboard = ({ onBack }) => {
       {/* 🔥 SLOT MANAGER */}
       <div className="mb-10">
         <h2 className="text-xl font-bold mb-4">Manage Booking Slots</h2>
+        <p className="text-sm text-gray-400 mb-4">All slots are off by default. Click a slot to turn it on or off. Customer online booking is paused.</p>
 
         <input
           type="date"
@@ -1152,12 +1159,12 @@ const AdminDashboard = ({ onBack }) => {
           <div className="grid grid-cols-3 gap-3 mt-6">
             {slots.map(slot => {
               const isBooked = bookedSlots.includes(slot);
-              const isBlocked = blockedSlots.includes(slot);
+              const isBlocked = !slotsReady || blockedSlots.includes(slot);
 
               return (
                 <button
                   key={slot}
-                  disabled={isBooked}
+                  disabled={isBooked || !slotsReady}
                   onClick={() => toggleSlot(slot)}
                   className={`
               p-3 text-xs font-bold rounded-lg
@@ -1166,7 +1173,7 @@ const AdminDashboard = ({ onBack }) => {
                         "bg-green-500"}
             `}
                 >
-                  {slot}
+                  {slot} — {isBooked ? "Booked" : !slotsReady ? "Loading…" : isBlocked ? "Off" : "On"}
                 </button>
               );
             })}

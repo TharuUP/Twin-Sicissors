@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local backend data and secrets
+Backend/*.db
+Backend/receipts/
+Backend/__pycache__/
+Backend/nfs*
+.env
+.env.*
